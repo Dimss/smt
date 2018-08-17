@@ -43,20 +43,13 @@ resource "aws_elb" "smt_rproxy_elb" {
 }
 
 
-//data "template_file" "user_data" {
-//  template = "${file("${path.module}/rproxy_user_data.tpl")}"
-//  vars {
-//    service_name = "${var.service_name}"
-//    sd_ns_name = "${var.sd_ns_name}"
-//  }
-//}
-//
-//data "template_cloudinit_config" "config" {
-//  part {
-//    content_type = "text/x-shellscript"
-//    content = "${data.template_file.user_data.rendered}"
-//  }
-//}
+data "template_file" "user_data" {
+  template = "${file("${path.module}/rproxy_user_data.tpl")}"
+  vars {
+    service_name = "${var.service_name}"
+    sd_ns_name = "${var.sd_ns_name}"
+  }
+}
 
 
 ## Launch configuration for revers proxies servers
@@ -65,8 +58,7 @@ resource "aws_launch_configuration" "smt_rprorxy_launch_conf" {
   image_id = "${var.ami}"
   instance_type = "${var.instace_type}"
   key_name = "${var.key_name}"
-    user_data = "${file("${path.module}/rproxy_user_data.sh")}"
-//  user_data = "${data.template_cloudinit_config.config.rendered}"
+  user_data = "${data.template_file.user_data.rendered}"
   security_groups = [
     "${var.default_sg_id}"
   ]

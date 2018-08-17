@@ -3,3 +3,5 @@ tf/.terraform
 tf/terraform.tfstate
 tf/terraform.tfstate.backup
 *.pyc
+web-app/helloworld.war
+web-app/jre-8u181-linux-x64.tar.gz
