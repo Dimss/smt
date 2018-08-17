@@ -11,6 +11,11 @@ output "security_group" {
   value = "${module.vpc.default_sg_id}"
 }
 
-output "nginx_conf_rendered" {
-  value = "${module.ec2.nginx_rendered}"
+// Disabled - use for deubg only
+//output "nginx_conf_rendered" {
+//  value = "${module.ec2.nginx_rendered}"
+//}
+
+output "helloworld_elb" {
+  value = "${module.ec2.helloworld_elb}"
 }
