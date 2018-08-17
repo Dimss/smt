@@ -1,0 +1,5 @@
+.idea
+tf/.terraform
+tf/terraform.tfstate
+tf/terraform.tfstate.backup
+*.pyc
