@@ -6,6 +6,7 @@ import config
 
 session = boto3.session.Session(profile_name="default", region_name=config.AWS_REGION)
 
+
 @click.group()
 def cli():
 	pass
@@ -26,7 +27,7 @@ class Depl(object):
 		:param mem: see https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
 		:return:
 		"""
-		self.ecs.register_task_definition(
+		response = self.ecs.register_task_definition(
 				family=task_name,
 				networkMode='awsvpc',
 				containerDefinitions=[
@@ -40,6 +41,44 @@ class Depl(object):
 				cpu=cpu,
 				memory=mem
 		)
+		print(response)
+
+	def list_tasks(self):
+		tasks_definitions = self.ecs.list_task_definitions(familyPrefix=config.TASK_NAME)
+		for task_def_arn in tasks_definitions['taskDefinitionArns']:
+			print(task_def_arn)
+
+	def create_new_service(self, task_def, desired_count=1):
+		response = self.ecs.create_service(
+				cluster=config.ECS_CLUSTER_NAME,
+				serviceName=config.SERVICE_NAME,
+				taskDefinition=task_def,
+				serviceRegistries=[
+					{
+						'registryArn': config.SD_SERVICE_ARN
+					},
+				],
+				desiredCount=desired_count,
+				launchType='FARGATE',
+
+				networkConfiguration={
+					'awsvpcConfiguration': {
+						'subnets':        config.SUBNETS,
+						'securityGroups': config.SECURITY_GROUPS,
+						'assignPublicIp': 'DISABLED'
+					}
+				},
+				schedulingStrategy='REPLICA'
+		)
+		print(response)
+
+	def update_service(self, task_def, replicas=1):
+		response = self.ecs.update_service(
+				cluster=config.ECS_CLUSTER_NAME,
+				service=config.SERVICE_NAME,
+				desiredCount=replicas,
+				taskDefinition=task_def)
+		print(response)
 
 	def delete_service(self, service_name):
 		print(f"Gonna delete service name: {service_name}")
@@ -50,73 +89,61 @@ class Depl(object):
 		)
 		print(response)
 
-	def delete_task(self, task_name):
+	def delete_task(self):
 		print("Gonna delete all task definitions")
-		tasks_definitions = self.ecs.list_task_definitions(familyPrefix=task_name)
+		tasks_definitions = self.ecs.list_task_definitions(familyPrefix=config.TASK_NAME)
 		for task_def_arn in tasks_definitions['taskDefinitionArns']:
 			response = self.ecs.deregister_task_definition(taskDefinition=task_def_arn)
 			print(response)
 
 
 @click.command('create-task')
-def create_task():
+@click.argument('image')
+def create_task(image):
+	print("Gonna create new task")
 	Depl().create_new_task(
-			'web-app-task',
-			'istio-tester',
-			'dimssss/hw:0.1',
-			[{
-				'containerPort': 8080,
-				'hostPort':      8080,
-				'protocol':      'tcp'
-			}]
+			config.TASK_NAME, 'helloworld', image, [{'containerPort': 8080, 'hostPort': 8080, 'protocol': 'tcp'}]
 	)
 
 
 @click.command('create-service')
-def create_service():
+@click.argument('task-arn')
+@click.option('--replicas', default=1, help='Task arn')
+def create_service(task_arn, replicas):
 	print("Gonna create new service. . .")
-	ecs = session.client('ecs')
-	ecs.create_service(
-			cluster=config.ECS_CLUSTER_NAME,
-			serviceName='web-app',
-			taskDefinition='web-app-task:2',
-			serviceRegistries=[
-				{
-					'registryArn': config.SD_SERVICE_ARN
-				},
-			],
-			desiredCount=1,
-			launchType='FARGATE',
+	Depl().create_new_service(task_arn, replicas)
 
-			networkConfiguration={
-				'awsvpcConfiguration': {
-					'subnets':        config.SUBNETS,
-					'securityGroups': config.SECURITY_GROUPS,
-					'assignPublicIp': 'DISABLED'
-				}
-			},
-			schedulingStrategy='REPLICA'
-	)
+
+@click.command('update-service')
+@click.argument('task-arn')
+@click.option('--replicas', default=1, help='Replicas, default 1')
+def update_service(task_arn, replicas=1):
+	print("Gonna update a service")
+	Depl().update_service(task_arn, replicas)
+
+
+@click.command('list-tasks')
+def list_tasks():
+	Depl().list_tasks()
 
 
 @click.command('delete-service')
-@click.argument('service-name')
-def delete_service(service_name):
-	Depl().delete_service(service_name)
+def delete_service():
+	Depl().delete_service(config.SERVICE_NAME)
 
 
-@click.command('delete-task')
-@click.argument('task-name')
-def delete_task(task_name):
-	Depl().delete_task(task_name)
+@click.command('delete-tasks')
+def delete_tasks():
+	Depl().delete_task()
 
 
 cli.add_command(create_task)
 cli.add_command(create_service)
+cli.add_command(update_service)
+cli.add_command(list_tasks)
 cli.add_command(delete_service)
-cli.add_command(delete_task)
+cli.add_command(delete_tasks)
 
 if __name__ == '__main__':
 	cprint(figlet_format('Depl', font='big'), 'green')
-	# logging.log("Test log message",logging.INFO)
 	cli()
