@@ -44,11 +44,22 @@ class Depl(object):
 		print(response)
 
 	def list_tasks(self):
+		"""
+		Print all tasks ARNs
+		:return: None
+		"""
 		tasks_definitions = self.ecs.list_task_definitions(familyPrefix=config.TASK_NAME)
 		for task_def_arn in tasks_definitions['taskDefinitionArns']:
 			print(task_def_arn)
 
 	def create_new_service(self, task_def, desired_count=1):
+		"""
+		Create new ECS service
+		:param task_def: The task arn string, can be fetched by executing l
+		ist-tasks command of running list_tasks function
+		:param desired_count: Number of replicas to run
+		:return: None
+		"""
 		response = self.ecs.create_service(
 				cluster=config.ECS_CLUSTER_NAME,
 				serviceName=config.SERVICE_NAME,
@@ -73,6 +84,13 @@ class Depl(object):
 		print(response)
 
 	def update_service(self, task_def, replicas=1):
+		"""
+		Update existing service
+		:param task_def: The task arn string, can be fetched by executing l
+		ist-tasks command of running list_tasks function
+		:param desired_count: Number of replicas to run
+		:return:
+		"""
 		response = self.ecs.update_service(
 				cluster=config.ECS_CLUSTER_NAME,
 				service=config.SERVICE_NAME,
@@ -80,16 +98,24 @@ class Depl(object):
 				taskDefinition=task_def)
 		print(response)
 
-	def delete_service(self, service_name):
-		print(f"Gonna delete service name: {service_name}")
+	def delete_service(self):
+		"""
+		Delete ECS service
+		:return: None
+		"""
+		print(f"Gonna delete service name: {config.SERVICE_NAME}")
 		response = self.ecs.delete_service(
 				cluster=config.ECS_CLUSTER_NAME,
-				service=service_name,
+				service=config.SERVICE_NAME,
 				force=True
 		)
 		print(response)
 
 	def delete_task(self):
+		"""
+		List and delete all tasks
+		:return: None
+		"""
 		print("Gonna delete all task definitions")
 		tasks_definitions = self.ecs.list_task_definitions(familyPrefix=config.TASK_NAME)
 		for task_def_arn in tasks_definitions['taskDefinitionArns']:
@@ -129,7 +155,7 @@ def list_tasks():
 
 @click.command('delete-service')
 def delete_service():
-	Depl().delete_service(config.SERVICE_NAME)
+	Depl().delete_service()
 
 
 @click.command('delete-tasks')
