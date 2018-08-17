@@ -142,6 +142,16 @@ resource "aws_security_group_rule" "allow-web" {
     "89.138.247.223/32"]
 }
 
+resource "aws_security_group_rule" "allow-ssl" {
+  from_port = 443
+  protocol = "tcp"
+  security_group_id = "${aws_vpc.smt_vpc.default_security_group_id}"
+  to_port = 443
+  type = "ingress"
+  cidr_blocks = [
+    "89.138.247.223/32"]
+}
+
 resource "aws_security_group_rule" "allow-web-app" {
   from_port = 8080
   protocol = "tcp"
