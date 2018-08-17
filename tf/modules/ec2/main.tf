@@ -4,12 +4,9 @@ resource "aws_instance" "bastion" {
   instance_type = "${var.instace_type}"
   count = 1
   subnet_id = "${var.public_subnet_a_id}"
-  key_name = "dimaTest"
+  key_name = "${var.key_name}"
   tags {
     Name = "stm-bastion-srv"
-    operational-hours = "247"
-    owner = "ildevops"
-    owner-email = "ildevops@traiana.com"
   }
 }
 
@@ -89,26 +86,6 @@ resource "aws_autoscaling_group" "smt_rproxy_asg" {
   tag {
     key = "Name"
     value = "rproxy-group"
-    propagate_at_launch = true
-  }
-  tag {
-    key = "owner"
-    value = "ildevops"
-    propagate_at_launch = true
-  }
-  tag {
-    key = "owner-email"
-    value = "ildevops@trainaa.com"
-    propagate_at_launch = true
-  }
-  tag {
-    key = "onwer-email"
-    value = "ildevops@traiana.com"
-    propagate_at_launch = true
-  }
-  tag {
-    key = "operational-hours"
-    value = "247"
     propagate_at_launch = true
   }
 }

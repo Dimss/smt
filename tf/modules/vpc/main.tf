@@ -129,7 +129,7 @@ resource "aws_security_group_rule" "allow-ssh" {
   to_port = 22
   type = "ingress"
   cidr_blocks = [
-    "89.138.247.223/32"]
+    "0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "allow-web" {
@@ -139,7 +139,7 @@ resource "aws_security_group_rule" "allow-web" {
   to_port = 80
   type = "ingress"
   cidr_blocks = [
-    "89.138.247.223/32"]
+    "0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "allow-ssl" {
@@ -149,7 +149,7 @@ resource "aws_security_group_rule" "allow-ssl" {
   to_port = 443
   type = "ingress"
   cidr_blocks = [
-    "89.138.247.223/32"]
+    "0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "allow-web-app" {
@@ -159,5 +159,5 @@ resource "aws_security_group_rule" "allow-web-app" {
   to_port = 8080
   type = "ingress"
   cidr_blocks = [
-    "89.138.247.223/32"]
+    "0.0.0.0/0"]
 }
