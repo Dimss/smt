@@ -1,0 +1,1 @@
+Smava technical task
