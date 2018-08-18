@@ -14,3 +14,6 @@ configparser = "*"
 
 [requires]
 python_version = "3.6"
+
+[scripts]
+dp = "python dp.py"

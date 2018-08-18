@@ -1,4 +1,4 @@
-output "service_discovery_servier_arn" {
+output "sd_service_arn" {
   value = "${module.ecs.service_discovery_service_arn}"
 }
 output "private_subnest" {
