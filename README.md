@@ -1,4 +1,4 @@
-# Smava technical task
+
 
 ## Components  
 I've created 3 decoupled component which allowing to run hellowrold.war service in hight available fully automated environment. 
